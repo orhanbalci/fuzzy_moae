@@ -1,11 +1,11 @@
-package net.orhanbalci.fuzzymoae.entity;
+package net.orhanbalci.fuzzymoea.entity;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "dri")
 public class Constraint {
-  @DatabaseField(columnName = "id")
+  @DatabaseField(columnName = "id", id = true)
   private int id;
 
   @DatabaseField(columnName = "nutrient_id")

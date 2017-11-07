@@ -5,7 +5,7 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "food_group")
 public class FoodGroup {
-  @DatabaseField(columnName = "id")
+  @DatabaseField(columnName = "id", id = true)
   private int id;
 
   @DatabaseField(columnName = "name")
