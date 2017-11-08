@@ -11,7 +11,7 @@ import java.util.List;
 import net.orhanbalci.fuzzymoea.entity.*;
 
 public class Db {
-  private static final String databaseUrl = "";
+  private static final String databaseUrl = "jdbc:mysql://172.17.0.2:3306/DIET";
   private ConnectionSource connectionSource;
   private Dao<Constraint, Integer> constraintDao;
   private Dao<FoodGroup, Integer> foodGroupDao;
@@ -23,7 +23,7 @@ public class Db {
 
   public Db() {
     try {
-      connectionSource = new JdbcConnectionSource(databaseUrl);
+      connectionSource = new JdbcConnectionSource(databaseUrl, "root", "root");
       createDao();
     } catch (SQLException exc) {
       System.out.println(exc);
@@ -56,6 +56,52 @@ public class Db {
     } catch (SQLException exc) {
       System.out.println(exc);
       return Collections.<Constraint>emptyList();
+    }
+  }
+
+  public List<FoodGroup> getFoodGroups() {
+    try {
+      return foodGroupDao.queryForAll();
+    } catch (SQLException exc) {
+      exc.printStackTrace();
+      return Collections.<FoodGroup>emptyList();
+    }
+  }
+
+  public List<FoodNutrient> getFoodNutrients() {
+    try {
+      return foodNutrientDao.queryForAll();
+
+    } catch (SQLException exc) {
+      exc.printStackTrace();
+      return Collections.<FoodNutrient>emptyList();
+    }
+  }
+
+  public List<Food> getFoods() {
+    try {
+      return foodDao.queryForAll();
+    } catch (SQLException exc) {
+      exc.printStackTrace();
+      return Collections.<Food>emptyList();
+    }
+  }
+
+  public List<NutrientGroup> getNutrientGroups() {
+    try {
+      return nutrientGroupDao.queryForAll();
+    } catch (SQLException exc) {
+      exc.printStackTrace();
+      return Collections.<NutrientGroup>emptyList();
+    }
+  }
+
+  public List<Unit> getUnits() {
+    try {
+      return unitDao.queryForAll();
+    } catch (SQLException exc) {
+      exc.printStackTrace();
+      return Collections.<Unit>emptyList();
     }
   }
 }

@@ -3,7 +3,7 @@ package net.orhanbalci.fuzzymoea.entity;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-@DatabaseTable(tableName = "food")
+@DatabaseTable(tableName = "foods")
 public class Food {
   @DatabaseField(columnName = "id", id = true)
   private int id;
