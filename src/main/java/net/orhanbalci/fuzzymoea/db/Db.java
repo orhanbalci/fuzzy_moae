@@ -104,4 +104,18 @@ public class Db {
       return Collections.<Unit>emptyList();
     }
   }
+
+  public List<Nutrient> getNutrients(){
+      try{
+          List<Nutrient> result = nutrientDao.queryForAll();
+          for(Nutrient nutrient : result ){
+            nutrientGroupDao.refresh(nutrient.getNutrientGroup());
+            unitDao.refresh(nutrient.getUnit());
+          }
+          return result;
+      }catch (SQLException exc){
+          exc.printStackTrace();
+          return Collections.<Nutrient>emptyList();
+      }
+  }
 }

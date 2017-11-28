@@ -11,11 +11,11 @@ public class Nutrient {
   @DatabaseField(columnName = "name")
   private String name;
 
-  @DatabaseField(columnName = "nGroupId")
-  private int nutrientGroupId;
+  @DatabaseField(columnName = "nGroupId", canBeNull = false, foreign = true)
+  private NutrientGroup nutrientGroup;
 
-  @DatabaseField(columnName = "unitId")
-  private int unitId;
+  @DatabaseField(columnName = "unitId", canBeNull = false, foreign = true)
+  private Unit unit;
 
   public Nutrient() {}
 
@@ -35,19 +35,19 @@ public class Nutrient {
     this.name = name;
   }
 
-  public int getNutrientGroupId() {
-    return nutrientGroupId;
+  public NutrientGroup getNutrientGroup() {
+    return nutrientGroup;
   }
 
-  public void setNutrientGroupId(int nutrientGroupId) {
-    this.nutrientGroupId = nutrientGroupId;
+  public void setNutrientGroup(NutrientGroup nutrientGroup) {
+    this.nutrientGroup = nutrientGroup;
   }
 
-  public int getUnitId() {
-    return unitId;
+  public Unit getUnit() {
+    return unit;
   }
 
-  public void setUnitId(int unitId) {
-    this.unitId = unitId;
+  public void setUnit(Unit unit) {
+    this.unit = unit;
   }
 }

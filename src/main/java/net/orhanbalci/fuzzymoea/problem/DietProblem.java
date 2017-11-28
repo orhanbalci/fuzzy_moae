@@ -7,11 +7,16 @@ import org.uma.jmetal.solution.BinarySolution;
 public class DietProblem extends AbstractBinaryProblem
     implements ConstrainedProblem<BinarySolution> {
 
-  public DietProblem() {
+  private int age;
+  private String gender;
+
+  public DietProblem(int age, String gender) {
     setName("Diet Problem");
     setNumberOfConstraints(2);
     setNumberOfObjectives(2);
     setNumberOfVariables(100);
+    this.age = age;
+    this.gender = gender;
   }
 
   @Override
