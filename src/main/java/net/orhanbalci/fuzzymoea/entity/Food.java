@@ -11,8 +11,8 @@ public class Food {
   @DatabaseField(columnName = "name")
   private String name;
 
-  @DatabaseField(columnName = "foodGroupId")
-  private int foodGroupId;
+  @DatabaseField(columnName = "foodGroupId", canBeNull = false, foreign = true)
+  private FoodGroup foodGroup;
 
   @DatabaseField(columnName = "cost")
   private float cost;
@@ -38,12 +38,12 @@ public class Food {
     this.name = name;
   }
 
-  public int getFoodGroupId() {
-    return foodGroupId;
+  public FoodGroup getFoodGroup() {
+    return foodGroup;
   }
 
-  public void setFoodGroupId(int foodGroupId) {
-    this.foodGroupId = foodGroupId;
+  public void setFoodGroup(FoodGroup foodGroup) {
+    this.foodGroup = foodGroup;
   }
 
   public float getCost() {

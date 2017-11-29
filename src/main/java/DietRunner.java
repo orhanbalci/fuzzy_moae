@@ -45,7 +45,7 @@ public class DietRunner extends AbstractAlgorithmRunner {
     List<BinarySolution> population = algorithm.getResult();
     long computingTime = algorithmRunner.getComputingTime();
     JMetalLogger.logger.info("Total execution time : " + computingTime + "ms");
-    // printFinalSolutionSet(population);
 
+    printFinalSolutionSet(population);
   }
 }

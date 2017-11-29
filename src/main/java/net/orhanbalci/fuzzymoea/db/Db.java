@@ -7,7 +7,9 @@ import com.j256.ormlite.support.ConnectionSource;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import net.orhanbalci.fuzzymoea.entity.*;
 
 public class Db {
@@ -20,6 +22,8 @@ public class Db {
   private Dao<NutrientGroup, Integer> nutrientGroupDao;
   private Dao<Nutrient, Integer> nutrientDao;
   private Dao<Unit, Integer> unitDao;
+
+  private Map<Integer, Food> foodCache = new HashMap<Integer, Food>();
 
   public Db() {
     try {
@@ -70,8 +74,12 @@ public class Db {
 
   public List<FoodNutrient> getFoodNutrients() {
     try {
-      return foodNutrientDao.queryForAll();
-
+      List<FoodNutrient> result = foodNutrientDao.queryForAll();
+      for (FoodNutrient fn : result) {
+        foodDao.refresh(fn.getFood());
+        nutrientDao.refresh(fn.getNutrient());
+      }
+      return result;
     } catch (SQLException exc) {
       exc.printStackTrace();
       return Collections.<FoodNutrient>emptyList();
@@ -80,11 +88,24 @@ public class Db {
 
   public List<Food> getFoods() {
     try {
-      return foodDao.queryForAll();
+      foodCache.clear();
+      List<Food> result = foodDao.queryForAll();
+      for (Food f : result) {
+        foodGroupDao.refresh(f.getFoodGroup());
+        foodCache.put(f.getId(), f);
+      }
+      return result;
     } catch (SQLException exc) {
       exc.printStackTrace();
       return Collections.<Food>emptyList();
     }
+  }
+
+  public Food getFood(int id) {
+    if (foodCache.isEmpty()) {
+      getFoods();
+    }
+    return foodCache.get(id);
   }
 
   public List<NutrientGroup> getNutrientGroups() {
@@ -105,17 +126,17 @@ public class Db {
     }
   }
 
-  public List<Nutrient> getNutrients(){
-      try{
-          List<Nutrient> result = nutrientDao.queryForAll();
-          for(Nutrient nutrient : result ){
-            nutrientGroupDao.refresh(nutrient.getNutrientGroup());
-            unitDao.refresh(nutrient.getUnit());
-          }
-          return result;
-      }catch (SQLException exc){
-          exc.printStackTrace();
-          return Collections.<Nutrient>emptyList();
+  public List<Nutrient> getNutrients() {
+    try {
+      List<Nutrient> result = nutrientDao.queryForAll();
+      for (Nutrient nutrient : result) {
+        nutrientGroupDao.refresh(nutrient.getNutrientGroup());
+        unitDao.refresh(nutrient.getUnit());
       }
+      return result;
+    } catch (SQLException exc) {
+      exc.printStackTrace();
+      return Collections.<Nutrient>emptyList();
+    }
   }
 }

@@ -8,11 +8,11 @@ public class FoodNutrient {
   @DatabaseField(columnName = "Id", id = true)
   private int id;
 
-  @DatabaseField(columnName = "foodId")
-  private int foodId;
+  @DatabaseField(columnName = "foodId", canBeNull = false, foreign = true)
+  private Food food;
 
-  @DatabaseField(columnName = "nutrientId")
-  private int nutrientId;
+  @DatabaseField(columnName = "nutrientId", canBeNull = false, foreign = true)
+  private Nutrient nutrient;
 
   @DatabaseField(columnName = "quantity")
   private float quantity;
@@ -27,20 +27,20 @@ public class FoodNutrient {
     this.id = id;
   }
 
-  public int getFoodId() {
-    return foodId;
+  public Food getFood() {
+    return food;
   }
 
-  public void setFoodId(int foodId) {
-    this.foodId = foodId;
+  public void setFood(Food food) {
+    this.food = food;
   }
 
-  public int getNutrientId() {
-    return nutrientId;
+  public Nutrient getNutrient() {
+    return nutrient;
   }
 
-  public void setNutrientId(int nutrientId) {
-    this.nutrientId = nutrientId;
+  public void setNutrient(Nutrient nutrient) {
+    this.nutrient = nutrient;
   }
 
   public float getQuantity() {
