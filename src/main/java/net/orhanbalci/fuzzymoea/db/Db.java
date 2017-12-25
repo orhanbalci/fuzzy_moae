@@ -3,9 +3,12 @@ package net.orhanbalci.fuzzymoea.db;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.support.ConnectionSource;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +26,11 @@ public class Db {
   private Dao<Nutrient, Integer> nutrientDao;
   private Dao<Unit, Integer> unitDao;
 
+  private PreparedQuery<Constraint> constraintByAgeAndGenderQuery;
+
   private Map<Integer, Food> foodCache = new HashMap<Integer, Food>();
+  private Map<Integer, Constraint> constraintCache = new HashMap<Integer, Constraint>();
+  private Map<Integer, FoodNutrient> foodNutrientCache = new HashMap<Integer, FoodNutrient>();
 
   public Db() {
     try {
@@ -56,7 +63,13 @@ public class Db {
 
   public List<Constraint> getConstraints() {
     try {
-      return constraintDao.queryForAll();
+      constraintCache.clear();
+      List<Constraint> result = constraintDao.queryForAll();
+      for (Constraint c : result) {
+        nutrientDao.refresh(c.getNutrient());
+        constraintCache.put(c.getId(), c);
+      }
+      return result;
     } catch (SQLException exc) {
       System.out.println(exc);
       return Collections.<Constraint>emptyList();
@@ -74,16 +87,34 @@ public class Db {
 
   public List<FoodNutrient> getFoodNutrients() {
     try {
+      foodNutrientCache.clear();
       List<FoodNutrient> result = foodNutrientDao.queryForAll();
       for (FoodNutrient fn : result) {
         foodDao.refresh(fn.getFood());
         nutrientDao.refresh(fn.getNutrient());
+        foodNutrientCache.put(fn.getId(), fn);
       }
       return result;
     } catch (SQLException exc) {
       exc.printStackTrace();
       return Collections.<FoodNutrient>emptyList();
     }
+  }
+
+  public List<FoodNutrient> getFoodNutrients(Food f) {
+    if (foodNutrientCache.isEmpty()) {
+      getFoodNutrients();
+    }
+
+    Collection<FoodNutrient> valueSet = foodNutrientCache.values();
+    List<FoodNutrient> result = new ArrayList<FoodNutrient>();
+    for (FoodNutrient fn : valueSet) {
+      if (fn.getFood().getId() == f.getId()) {
+        result.add(fn);
+      }
+    }
+
+    return result;
   }
 
   public List<Food> getFoods() {
@@ -138,5 +169,44 @@ public class Db {
       exc.printStackTrace();
       return Collections.<Nutrient>emptyList();
     }
+  }
+
+  public List<Constraint> getConstraints(String gender, int age) {
+    try {
+      if (null == constraintByAgeAndGenderQuery) {
+        constraintByAgeAndGenderQuery =
+            constraintDao
+                .queryBuilder()
+                .where()
+                .eq("gender", gender)
+                .and()
+                .gt("up_age", age)
+                .and()
+                .lt("low_age", age)
+                .prepare();
+      }
+
+      constraintCache.clear();
+      List<Constraint> result = constraintDao.query(constraintByAgeAndGenderQuery);
+      for (Constraint c : result) {
+        nutrientDao.refresh(c.getNutrient());
+        constraintCache.put(c.getId(), c);
+      }
+      return result;
+    } catch (SQLException exc) {
+      exc.printStackTrace();
+      return Collections.<Constraint>emptyList();
+    }
+  }
+
+  public Constraint getConstraint(int constraintId) {
+    if (constraintCache.isEmpty()) {
+      getConstraints();
+    }
+    if (!constraintCache.containsKey(constraintId)) {
+      getConstraints();
+    }
+
+    return constraintCache.get(constraintId);
   }
 }

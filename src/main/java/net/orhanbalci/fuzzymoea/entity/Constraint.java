@@ -8,8 +8,8 @@ public class Constraint {
   @DatabaseField(columnName = "id", id = true)
   private int id;
 
-  @DatabaseField(columnName = "nutrient_id")
-  private int nutrientId;
+  @DatabaseField(columnName = "nutrient_id", canBeNull = false, foreign = true)
+  private Nutrient nutrient;
 
   @DatabaseField(columnName = "low_age")
   private int ageLowerBound;
@@ -36,12 +36,12 @@ public class Constraint {
     this.id = id;
   }
 
-  public int getNutrientId() {
-    return nutrientId;
+  public Nutrient getNutrient() {
+    return nutrient;
   }
 
-  public void setNutrientId(int nutrientId) {
-    this.nutrientId = nutrientId;
+  public void setNutrient(Nutrient nutrient) {
+    this.nutrient = nutrient;
   }
 
   public int getAgeLowerBound() {
