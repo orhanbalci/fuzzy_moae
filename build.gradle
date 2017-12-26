@@ -22,11 +22,15 @@ repositories {
     // You can declare any Maven/Ivy/file repository here.
     jcenter()
     mavenCentral()
+    flatDir{
+        dirs 'lib'
+    }
 }
 
 dependencies {
     // This dependency is found on compile classpath of this component and consumers.
     compile 'com.google.guava:guava:20.0'
+    compile name :'jFuzzyLogic'
 
     // Use JUnit test framework
     testCompile 'junit:junit:4.12'
@@ -39,6 +43,7 @@ dependencies {
         [group:'com.j256.ormlite',name:'ormlite-core',version: '5.0'],
         [group:'com.j256.ormlite',name:'ormlite-jdbc', version: '5.0'],
         [group:'mysql',name:'mysql-connector-java',version: '5.1.6']
+
     )
 }
 
