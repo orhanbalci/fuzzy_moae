@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 import net.orhanbalci.fuzzymoea.entity.*;
 
 public class Db {
@@ -208,5 +209,21 @@ public class Db {
     }
 
     return constraintCache.get(constraintId);
+  }
+
+  public void generateMissingFields() {
+    getFoods()
+        .forEach(
+            food -> {
+              int randomPreparationTime = ThreadLocalRandom.current().nextInt(5, 121);
+              int randomRating = ThreadLocalRandom.current().nextInt(0, 11);
+              food.setPreparationTime(randomPreparationTime);
+              food.setRating(randomRating);
+              try {
+                foodDao.update(food);
+              } catch (SQLException exc) {
+                exc.printStackTrace();
+              }
+            });
   }
 }

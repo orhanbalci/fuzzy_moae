@@ -20,6 +20,12 @@ public class Food {
   @DatabaseField(columnName = "preference")
   private int preference;
 
+  @DatabaseField(columnName = "preparation_time")
+  private int preparationTime;
+
+  @DatabaseField(columnName = "rating")
+  private int rating;
+
   public Food() {}
 
   public int getId() {
@@ -60,5 +66,21 @@ public class Food {
 
   public void setPreference(int preference) {
     this.preference = preference;
+  }
+
+  public int getPreparationTime() {
+    return preparationTime;
+  }
+
+  public void setPreparationTime(int preparationTime) {
+    this.preparationTime = preparationTime;
+  }
+
+  public int getRating() {
+    return rating;
+  }
+
+  public void setRating(int rating) {
+    this.rating = rating;
   }
 }

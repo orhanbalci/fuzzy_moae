@@ -2,3 +2,4 @@
 /build
 *.tsv
 *.log
+*.sql
