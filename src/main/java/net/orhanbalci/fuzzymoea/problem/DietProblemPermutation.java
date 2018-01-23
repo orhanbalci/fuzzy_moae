@@ -13,6 +13,8 @@ public class DietProblemPermutation extends AbstractIntegerPermutationProblem {
   private int numberOfConstraints = 0;
   private ConstraintCalculator cc;
   private FuzzyCalculator fc;
+  private static int iterationCount = 0;
+  private static final boolean DEBUG = true;
 
   public DietProblemPermutation() {
     this(5, "child");
@@ -47,18 +49,32 @@ public class DietProblemPermutation extends AbstractIntegerPermutationProblem {
     int sumCost = 0;
     int sumPreference = 0;
     double ideal = 0.0;
+    cc.clear();
     for (int i = 0; i < solution.getNumberOfVariables(); i++) {
-      if (cc.isConstraintsSatisfied(cc.addFood(db.getFood(solution.getVariableValue(i) + 1)))) {
+      int foodId = solution.getVariableValue(i) + 1;
+      if (cc.isConstraintsSatisfied(cc.addFood(db.getFood(foodId)))) {
         foodCount++;
-        sumCost += db.getFood(i + 1).getCost();
+        sumCost += db.getFood(foodId).getCost();
         ideal +=
             fc.calculateIdeal(
-                db.getFood(i + 1).getPreference(),
-                db.getFood(i + 1).getPreparationTime(),
-                db.getFood(i + 1).getRating());
+                db.getFood(foodId).getPreference(),
+                db.getFood(foodId).getPreparationTime(),
+                db.getFood(foodId).getRating());
         //sumPreference += db.getFood(i + 1).getPreference();
+        if (DEBUG) {
+          System.out.println("************");
+          System.out.format("Added food %d\n", foodId);
+          System.out.println("************");
+        }
+
       } else {
-        cc.removeFood(db.getFood(solution.getVariableValue(i)));
+        if (DEBUG) {
+          System.out.println("-----------");
+          cc.printFirstUnsatisfiedConstraint();
+          System.out.format("Removed food %d\n", foodId);
+          System.out.println("-----------");
+        }
+        cc.removeFood(db.getFood(foodId));
       }
     }
 
@@ -67,6 +83,13 @@ public class DietProblemPermutation extends AbstractIntegerPermutationProblem {
     fx[0] = ideal;
     solution.setObjective(0, -fx[0]); //maximize ideal NSGAII assumes minimization
     solution.setObjective(1, fx[1]); //minimize avg cost
+
+    if (DEBUG) {
+      System.out.format("Iteration Count %d\n", iterationCount++);
+      System.out.format("Average cost objective %f\n", fx[1]);
+      System.out.format("Ideal objective %f\n", fx[0]);
+      System.out.println();
+    }
   }
 
   @Override

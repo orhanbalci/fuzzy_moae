@@ -31,6 +31,7 @@ public class App {
     //System.out.println(new App().getGreeting());
     //new App().generateData();
     //DietRunner.run();
-    new App().testFuzzyCalculator();
+    //new App().testFuzzyCalculator();
+    DietPermutationRunner.run();
   }
 }

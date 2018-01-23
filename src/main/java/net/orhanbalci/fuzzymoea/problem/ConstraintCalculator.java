@@ -16,15 +16,29 @@ public class ConstraintCalculator {
 
   private Db db;
 
+  private static final boolean DEBUG = true;
+
   public ConstraintCalculator(Db db, List<Constraint> constraints) {
     this.constraints = constraints;
     this.db = db;
   }
 
+  public void clear() {
+    nutrientComposition.clear();
+  }
+
   public Map<Integer, ConstraintResult> addFood(Food f) {
+    if (DEBUG) {
+      System.out.println("Adding food : " + f.getName());
+    }
+
     Map<Integer, ConstraintResult> result = new HashMap<Integer, ConstraintResult>(10);
     List<FoodNutrient> nutrients = db.getFoodNutrients(f);
     for (FoodNutrient fn : nutrients) {
+      if (DEBUG) {
+        System.out.format(
+            "Adding nutrient : %d -> %s\n", fn.getNutrient().getId(), fn.getNutrient().getName());
+      }
       int nutrientId = fn.getNutrient().getId();
       if (nutrientComposition.keySet().contains(nutrientId)) {
         nutrientComposition.put(nutrientId, nutrientComposition.get(nutrientId) + fn.getQuantity());
@@ -63,17 +77,46 @@ public class ConstraintCalculator {
               cons.getConstraintLowerBound(),
               cons.getConstraintUpperBound());
       if (r.inRange(nutrientComposition.get(nutrientId))) {
+        if (DEBUG) {
+          System.out.format(
+              "Nutrient %d amount %f is WITHINLIMITS %f - %f\n",
+              nutrientId,
+              nutrientComposition.get(nutrientId),
+              cons.getConstraintLowerBound(),
+              cons.getConstraintUpperBound());
+        }
         return new ConstraintResult(ConstraintResultCode.WITHINLIMITS, 0.0f);
       } else if (nutrientComposition.get(nutrientId) > r.upper) {
+        if (DEBUG) {
+          System.out.format(
+              "Nutrient %d amount %f is OVERDOSE %f - %f\n",
+              nutrientId,
+              nutrientComposition.get(nutrientId),
+              cons.getConstraintLowerBound(),
+              cons.getConstraintUpperBound());
+        }
         return new ConstraintResult(
             ConstraintResultCode.OVERDOSE, nutrientComposition.get(nutrientId) - r.upper);
       } else {
+        if (DEBUG) {
+          System.out.format(
+              "Nutrient %d amount %f is UNDERDOSE %f - %f\n",
+              nutrientId,
+              nutrientComposition.get(nutrientId),
+              cons.getConstraintLowerBound(),
+              cons.getConstraintUpperBound());
+        }
         return new ConstraintResult(
             ConstraintResultCode.UNDERDOSE, r.lower - nutrientComposition.get(nutrientId));
       }
+    } else {
+      if (DEBUG) {
+        System.out.format(
+            "No constraint for nutrient %d amount %f go on!!!\n",
+            nutrientId, nutrientComposition.get(nutrientId));
+      }
+      return new ConstraintResult(ConstraintResultCode.WITHINLIMITS, 0.0f);
     }
-
-    return new ConstraintResult(ConstraintResultCode.WITHINLIMITS, 0.0f);
   }
 
   private Constraint getConstraint(int nutrientId) {
@@ -88,6 +131,24 @@ public class ConstraintCalculator {
     return constraints
         .entrySet()
         .stream()
-        .allMatch(entry -> entry.getValue().getResultCode() == ConstraintResultCode.WITHINLIMITS);
+        .allMatch(
+            entry ->
+                entry.getValue().getResultCode() == ConstraintResultCode.WITHINLIMITS
+                    || entry.getValue().getResultCode() == ConstraintResultCode.UNDERDOSE);
+  }
+
+  public void printFirstUnsatisfiedConstraint() {
+    nutrientComposition
+        .entrySet()
+        .stream()
+        .filter(
+            entry ->
+                checkViolation(entry.getKey()).getResultCode() == ConstraintResultCode.OVERDOSE)
+        .findAny()
+        .ifPresent(
+            entry ->
+                System.out.format(
+                    "Unsatisfied constraint nutrient id %d -> %f",
+                    entry.getKey(), checkViolation(entry.getKey()).getViolationAmount()));
   }
 }
