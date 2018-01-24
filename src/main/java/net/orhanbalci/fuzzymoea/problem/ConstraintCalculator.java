@@ -18,6 +18,8 @@ public class ConstraintCalculator {
 
   private static final boolean DEBUG = true;
 
+  private float rangeEpsilonRatio = 0.0f;
+
   public ConstraintCalculator(Db db, List<Constraint> constraints) {
     this.constraints = constraints;
     this.db = db;
@@ -74,8 +76,8 @@ public class ConstraintCalculator {
       Range<Float> r =
           new Range(
               Range.RangeCheck.INCLUDE_NONE,
-              cons.getConstraintLowerBound(),
-              cons.getConstraintUpperBound());
+              cons.getConstraintLowerBound() - cons.getConstraintLowerBound() * rangeEpsilonRatio,
+              cons.getConstraintUpperBound() + cons.getConstraintUpperBound() * rangeEpsilonRatio);
       if (r.inRange(nutrientComposition.get(nutrientId))) {
         if (DEBUG) {
           System.out.format(

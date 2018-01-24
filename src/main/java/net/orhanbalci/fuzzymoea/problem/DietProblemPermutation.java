@@ -1,5 +1,9 @@
 package net.orhanbalci.fuzzymoea.problem;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import net.orhanbalci.fuzzymoea.db.Db;
 import net.orhanbalci.fuzzymoea.fuzzy.*;
 import org.uma.jmetal.problem.impl.AbstractIntegerPermutationProblem;
@@ -15,6 +19,7 @@ public class DietProblemPermutation extends AbstractIntegerPermutationProblem {
   private FuzzyCalculator fc;
   private static int iterationCount = 0;
   private static final boolean DEBUG = true;
+  private List<Float> iterationEpsilon = new ArrayList<Float>();
 
   public DietProblemPermutation() {
     this(5, "child");
@@ -30,6 +35,7 @@ public class DietProblemPermutation extends AbstractIntegerPermutationProblem {
     this.gender = gender;
     cc = new ConstraintCalculator(db, db.getConstraints(gender, age));
     fc = new FuzzyCalculator("diet.fcl");
+    iterationEpsilon = generateConstraintEpsilonValues(5.0f, 1000);
   }
 
   // @Override
@@ -48,6 +54,9 @@ public class DietProblemPermutation extends AbstractIntegerPermutationProblem {
     int foodCount = 0;
     int sumCost = 0;
     int sumPreference = 0;
+    int sumPreperationTime = 0;
+    int sumRating = 0;
+
     double ideal = 0.0;
     cc.clear();
     for (int i = 0; i < solution.getNumberOfVariables(); i++) {
@@ -55,11 +64,14 @@ public class DietProblemPermutation extends AbstractIntegerPermutationProblem {
       if (cc.isConstraintsSatisfied(cc.addFood(db.getFood(foodId)))) {
         foodCount++;
         sumCost += db.getFood(foodId).getCost();
-        ideal +=
-            fc.calculateIdeal(
-                db.getFood(foodId).getPreference(),
-                db.getFood(foodId).getPreparationTime(),
-                db.getFood(foodId).getRating());
+        sumPreference += db.getFood(foodId).getPreference();
+        sumPreperationTime += db.getFood(foodId).getPreparationTime();
+        sumRating += db.getFood(foodId).getRating();
+        // ideal +=
+        //     fc.calculateIdeal(
+        //         db.getFood(foodId).getPreference(),
+        //         db.getFood(foodId).getPreparationTime(),
+        //         db.getFood(foodId).getRating());
         //sumPreference += db.getFood(i + 1).getPreference();
         if (DEBUG) {
           System.out.println("************");
@@ -80,7 +92,9 @@ public class DietProblemPermutation extends AbstractIntegerPermutationProblem {
 
     //fx[0] = (double) sumPreference / (double) foodCount;
     fx[1] = (double) sumCost / (double) foodCount;
-    fx[0] = ideal;
+    fx[0] =
+        fc.calculateIdeal(
+            sumPreference / foodCount, sumPreperationTime / foodCount, sumRating / foodCount);
     solution.setObjective(0, -fx[0]); //maximize ideal NSGAII assumes minimization
     solution.setObjective(1, fx[1]); //minimize avg cost
 
@@ -95,5 +109,12 @@ public class DietProblemPermutation extends AbstractIntegerPermutationProblem {
   @Override
   public int getPermutationLength() {
     return getNumberOfVariables();
+  }
+
+  private List<Float> generateConstraintEpsilonValues(float seed, int numberOfIterations) {
+    float iterationEpsilon = seed / (float) numberOfIterations;
+    return Stream.iterate(seed, i -> i - iterationEpsilon)
+        .limit(numberOfIterations)
+        .collect(Collectors.toList());
   }
 }
