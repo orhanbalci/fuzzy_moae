@@ -18,7 +18,7 @@ public class DietProblemPermutation extends AbstractIntegerPermutationProblem {
   private ConstraintCalculator cc;
   private FuzzyCalculator fc;
   private static int iterationCount = 0;
-  private static final boolean DEBUG = true;
+  private static final boolean DEBUG = false;
   private List<Float> iterationEpsilon = new ArrayList<Float>();
 
   public DietProblemPermutation() {
@@ -61,17 +61,19 @@ public class DietProblemPermutation extends AbstractIntegerPermutationProblem {
     cc.clear();
     for (int i = 0; i < solution.getNumberOfVariables(); i++) {
       int foodId = solution.getVariableValue(i) + 1;
-      if (cc.isConstraintsSatisfied(cc.addFood(db.getFood(foodId)))) {
+      //if (cc.isConstraintsSatisfied(cc.addFood(db.getFood(foodId)))) {
+      if (cc.shouldBeAdded(db.getFood(foodId))) {
+        cc.addFood(db.getFood(foodId));
         foodCount++;
         sumCost += db.getFood(foodId).getCost();
         sumPreference += db.getFood(foodId).getPreference();
         sumPreperationTime += db.getFood(foodId).getPreparationTime();
         sumRating += db.getFood(foodId).getRating();
-        // ideal +=
-        //     fc.calculateIdeal(
-        //         db.getFood(foodId).getPreference(),
-        //         db.getFood(foodId).getPreparationTime(),
-        //         db.getFood(foodId).getRating());
+        ideal +=
+            fc.calculateIdeal(
+                db.getFood(foodId).getPreference(),
+                db.getFood(foodId).getPreparationTime(),
+                db.getFood(foodId).getRating());
         //sumPreference += db.getFood(i + 1).getPreference();
         if (DEBUG) {
           System.out.println("************");
@@ -80,22 +82,22 @@ public class DietProblemPermutation extends AbstractIntegerPermutationProblem {
         }
 
       } else {
-        if (DEBUG) {
-          System.out.println("-----------");
-          cc.printFirstUnsatisfiedConstraint();
-          System.out.format("Removed food %d\n", foodId);
-          System.out.println("-----------");
-        }
-        cc.removeFood(db.getFood(foodId));
+        // if (DEBUG) {
+        //   System.out.println("-----------");
+        //   cc.printFirstUnsatisfiedConstraint();
+        //   System.out.format("Removed food %d\n", foodId);
+        //   System.out.println("-----------");
+        // }
+        // cc.removeFood(db.getFood(foodId));
       }
     }
 
-    //fx[0] = (double) sumPreference / (double) foodCount;
+    fx[0] = (double) ideal / (double) foodCount;
     fx[1] = (double) sumCost / (double) foodCount;
-    fx[0] =
-        fc.calculateIdeal(
-            sumPreference / foodCount, sumPreperationTime / foodCount, sumRating / foodCount);
-    solution.setObjective(0, -fx[0]); //maximize ideal NSGAII assumes minimization
+    // fx[0] =
+    //     fc.calculateIdeal(
+    //         sumPreference / foodCount, sumPreperationTime / foodCount, sumRating / foodCount);
+    solution.setObjective(0, 1 / fx[0]); //maximize ideal NSGAII assumes minimization
     solution.setObjective(1, fx[1]); //minimize avg cost
 
     if (DEBUG) {

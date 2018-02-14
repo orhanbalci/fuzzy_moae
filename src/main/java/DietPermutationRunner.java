@@ -1,4 +1,5 @@
 import java.util.List;
+import net.orhanbalci.fuzzymoea.util.*;
 import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAIIBuilder;
 import org.uma.jmetal.operator.CrossoverOperator;
@@ -37,15 +38,19 @@ public class DietPermutationRunner extends AbstractAlgorithmRunner {
     algorithm =
         new NSGAIIBuilder<PermutationSolution<Integer>>(problem, crossover, mutation)
             .setSelectionOperator(selection)
-            .setMaxEvaluations(1)
-            .setPopulationSize(4)
+            .setMaxEvaluations(10000)
+            .setPopulationSize(100)
             .build();
 
     AlgorithmRunner algorithmRunner = new AlgorithmRunner.Executor(algorithm).execute();
     List<PermutationSolution<Integer>> population = algorithm.getResult();
     long computingTime = algorithmRunner.getComputingTime();
     JMetalLogger.logger.info("Total execution time : " + computingTime + "ms");
+    JMetalLogger.logger.info("Number of solution in population : " + population.size());
 
     printFinalSolutionSet(population);
+
+    SolutionPrinter sp = new SolutionPrinter();
+    sp.writeSolution("VAR_CONVERTED.tsv", population);
   }
 }

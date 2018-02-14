@@ -32,6 +32,7 @@ public class Db {
   private Map<Integer, Food> foodCache = new HashMap<Integer, Food>();
   private Map<Integer, Constraint> constraintCache = new HashMap<Integer, Constraint>();
   private Map<Integer, FoodNutrient> foodNutrientCache = new HashMap<Integer, FoodNutrient>();
+  private Map<Integer, Nutrient> nutrientCache = new HashMap<Integer, Nutrient>();
 
   public Db() {
     try {
@@ -160,16 +161,25 @@ public class Db {
 
   public List<Nutrient> getNutrients() {
     try {
+      nutrientCache.clear();
       List<Nutrient> result = nutrientDao.queryForAll();
       for (Nutrient nutrient : result) {
         nutrientGroupDao.refresh(nutrient.getNutrientGroup());
         unitDao.refresh(nutrient.getUnit());
+        nutrientCache.put(nutrient.getId(), nutrient);
       }
       return result;
     } catch (SQLException exc) {
       exc.printStackTrace();
       return Collections.<Nutrient>emptyList();
     }
+  }
+
+  public Nutrient getNutrient(Integer nutrientId) {
+    if (nutrientCache.isEmpty()) {
+      getNutrients();
+    }
+    return nutrientCache.get(nutrientId);
   }
 
   public List<Constraint> getConstraints(String gender, int age) {
