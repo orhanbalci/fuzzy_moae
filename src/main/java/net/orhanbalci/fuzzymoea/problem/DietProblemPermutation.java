@@ -22,19 +22,19 @@ public class DietProblemPermutation extends AbstractIntegerPermutationProblem {
   private List<Float> iterationEpsilon = new ArrayList<Float>();
 
   public DietProblemPermutation() {
-    this(5, "child");
+    this("DietProblem", 5, "child", "diet.fcl");
   }
 
-  public DietProblemPermutation(int age, String gender) {
+  public DietProblemPermutation(String name, int age, String gender, String fuzzyFile) {
     numberOfConstraints = db.getConstraints(gender, age).size();
-    setName("Diet Problem");
+    setName(name);
     setNumberOfConstraints(numberOfConstraints);
     setNumberOfObjectives(2);
     setNumberOfVariables(db.getFoods().size());
     this.age = age;
     this.gender = gender;
     cc = new ConstraintCalculator(db, db.getConstraints(gender, age));
-    fc = new FuzzyCalculator("diet.fcl");
+    fc = new FuzzyCalculator(fuzzyFile);
     iterationEpsilon = generateConstraintEpsilonValues(5.0f, 1000);
   }
 
@@ -47,7 +47,7 @@ public class DietProblemPermutation extends AbstractIntegerPermutationProblem {
   // public void evaluateConstraints(PermutationSolution<Integer> solution) {}
 
   @Override
-  public void evaluate(PermutationSolution<Integer> solution) {
+  public synchronized void evaluate(PermutationSolution<Integer> solution) {
     //solution.ge
     double[] fx = new double[getNumberOfObjectives()];
 

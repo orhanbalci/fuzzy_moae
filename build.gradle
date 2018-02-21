@@ -37,9 +37,9 @@ dependencies {
 
     //jMetal dependencies
     compile (
-        [group:'org.uma.jmetal',name:'jmetal-core',version:'5.2'],
-        [group:'org.uma.jmetal',name:'jmetal-algorithm',version:'5.2'],
-        [group:'org.uma.jmetal',name:'jmetal-exec', version:'5.2'],
+        [group:'org.uma.jmetal',name:'jmetal-core',version:'5.4'],
+        [group:'org.uma.jmetal',name:'jmetal-algorithm',version:'5.4'],
+        [group:'org.uma.jmetal',name:'jmetal-exec', version:'5.4'],
         [group:'com.j256.ormlite',name:'ormlite-core',version: '5.0'],
         [group:'com.j256.ormlite',name:'ormlite-jdbc', version: '5.0'],
         [group:'mysql',name:'mysql-connector-java',version: '5.1.6']
