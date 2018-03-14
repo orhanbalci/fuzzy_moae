@@ -51,7 +51,7 @@ public class DietPermutationRunner extends AbstractAlgorithmRunner {
 
     printFinalSolutionSet(population);
 
-    SolutionPrinter sp = new SolutionPrinter();
+    SolutionPrinter sp = new SolutionPrinter("child", 5);
     sp.writeSolution("VAR_CONVERTED.tsv", population);
   }
 }

@@ -5,3 +5,7 @@
 *.sql
 /MembershipFunctionExperiment
 /MutationOperatorExperiment
+/GenerationCountExperiment
+/MutationRateExperiment
+/PreperationTimeExperiment
+*.time

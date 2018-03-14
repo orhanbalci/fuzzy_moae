@@ -1,0 +1,48 @@
+FUNCTION_BLOCK dietOptimizer
+	VAR_INPUT
+		preference : REAL;
+		rating : REAL;
+		preparation_time : REAL;
+	END_VAR
+
+	VAR_OUTPUT
+		ideal : REAL;
+	END_VAR
+
+	FUZZIFY preference 
+		TERM dont_like := (0, 1) (4, 0);
+		TERM neutral := trape 2 4 6 8;
+		TERM like := (6, 0)(10, 1);
+	END_FUZZIFY
+
+	FUZZIFY rating
+		TERM poor := (0, 1) (2, 1) (4, 0);
+		TERM fair := trape 3 4 6 7;
+		TERM good := (6,0 ) (8, 1) (10, 1);
+	END_FUZZIFY
+
+	FUZZIFY preparation_time
+		TERM short := (0, 1) (15, 1) (45, 0);
+		TERM medium := trape 25 35 60 70;
+		TERM long := trape 50 60 85 95;
+		TERM very_long := (75, 0) (105, 1) (120, 1);
+	END_FUZZIFY
+
+	DEFUZZIFY ideal
+		TERM sub_optimal := (0,1) (5,1) (15,0 );
+		TERM non_optimal := trape 5 10  20 25;
+		TERM optimal := (15,0) (25,1) (30,1);
+		METHOD : COG;
+		DEFAULT := 0;
+	END_DEFUZZIFY
+
+	RULEBLOCK No1
+		AND : MIN;	// Use 'min' for 'and'
+		ACT : MIN;	// Use 'min' activation method
+		ACCU : MAX;	// Use 'max' accumulation method
+
+		RULE 1 : IF preparation_time IS very_long AND preference IS dont_like AND rating IS poor THEN ideal IS sub_optimal;
+		RULE 2 : IF preparation_time IS medium AND preference IS neutral AND rating IS fair THEN ideal IS non_optimal; 
+		RULE 3 : IF preparation_time IS short AND preference IS like AND rating IS good	THEN ideal IS optimal;
+	END_RULEBLOCK
+END_FUNCTION_BLOCK
